@@ -36,7 +36,9 @@ const books = [
 const resolvers = {
   Query: {
     books: (parent, args, context, info) => {
-      return books.filter(value => value.author === args.author)
+      return args.author === undefined || args.author === null
+        ? books
+        : books.filter((value) => value.author === args.author);
     },
   },
 };

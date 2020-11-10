@@ -1,3 +1,4 @@
+import { useCallback, useEffect } from 'react'
 import logo from './logo.svg'
 import './App.css'
 import { ApolloClient, InMemoryCache } from '@apollo/client'
@@ -8,19 +9,26 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-client.query({
-  query: gql`
-    {
-      books {
-        title
-        author
-      }
-    }
-  `,
-})
-.then(result => console.log(result));
-
 function App() {
+  const fetchList = useCallback(() => {
+    client
+      .query({
+        query: gql`
+          {
+            books {
+              title
+              author
+            }
+          }
+        `,
+      })
+      .then((result) => console.log(result))
+  }, [])
+
+  useEffect(() => {
+    fetchList()
+  }, [])
+
   return (
     <div className="App">
       <header className="App-header">
