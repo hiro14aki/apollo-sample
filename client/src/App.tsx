@@ -1,8 +1,12 @@
-import { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import logo from './logo.svg'
 import './App.css'
-import { ApolloClient, InMemoryCache } from '@apollo/client'
-import { gql } from '@apollo/client'
+
+type BookList = {
+  title: string
+  author: string
+}[]
 
 const client = new ApolloClient({
   uri: 'http://localhost:4000/',
@@ -10,6 +14,7 @@ const client = new ApolloClient({
 })
 
 function App() {
+  const [bookList, setBookList] = useState<BookList>([])
   const fetchList = useCallback(() => {
     client
       .query({
@@ -22,7 +27,10 @@ function App() {
           }
         `,
       })
-      .then((result) => console.log(result))
+      .then((result) => {
+        console.log(result)
+        return result
+      })
   }, [])
 
   useEffect(() => {
@@ -34,7 +42,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          Edit <code>src/App.tsx</code> and save to reload.
         </p>
         <a
           className="App-link"
