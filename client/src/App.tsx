@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import 'reset-css'
 import './App.css'
@@ -12,6 +12,12 @@ const client = new ApolloClient({
   uri: 'http://localhost:4000/',
   cache: new InMemoryCache(),
 })
+
+let timer: number
+const debounce = (func: () => void, delay: number) => {
+  clearTimeout(timer)
+  timer = window.setTimeout(func, delay)
+}
 
 function App() {
   const [bookList, setBookList] = useState<BookList>([
@@ -38,13 +44,14 @@ function App() {
   }, [])
 
   const searchBook = useCallback(
-    (text: string) => {
-      fetchList(text)
-      setSearchText(text)
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setSearchText(event.target.value)
+      debounce(() => fetchList(event.target.value), 500)
     },
     [searchText]
   )
 
+  // For initial rendering.
   useEffect(() => {
     fetchList()
   }, [])
@@ -58,7 +65,7 @@ function App() {
           <input
             type={'text'}
             value={searchText}
-            onChange={(e) => searchBook(e.target.value)}
+            onChange={(e) => searchBook(e)}
           />
         </div>
       </div>
@@ -66,9 +73,15 @@ function App() {
         <table className={'listTable'}>
           <thead>
             <tr>
-              <th className={'headerTitle'} style={{width: '10%'}}>No.</th>
-              <th className={'headerTitle'} style={{width: '40%'}}>title</th>
-              <th className={'headerTitle'} style={{width: '40%'}}>Author</th>
+              <th className={'headerTitle'} style={{ width: '10%' }}>
+                No.
+              </th>
+              <th className={'headerTitle'} style={{ width: '40%' }}>
+                title
+              </th>
+              <th className={'headerTitle'} style={{ width: '40%' }}>
+                Author
+              </th>
             </tr>
           </thead>
           <tbody>
