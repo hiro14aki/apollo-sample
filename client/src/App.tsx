@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
-import logo from './logo.svg'
 import './App.css'
 
 type BookList = {
@@ -14,7 +13,10 @@ const client = new ApolloClient({
 })
 
 function App() {
-  const [bookList, setBookList] = useState<BookList>([])
+  const [bookList, setBookList] = useState<BookList>([
+    { title: '', author: '' },
+  ])
+
   const fetchList = useCallback(() => {
     client
       .query({
@@ -28,8 +30,7 @@ function App() {
         `,
       })
       .then((result) => {
-        console.log(result)
-        return result
+        setBookList(result.data.books)
       })
   }, [])
 
@@ -38,21 +39,33 @@ function App() {
   }, [])
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="root">
+      <h1>Book list</h1>
+      <div>
+        <h2>Search</h2>
+      </div>
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th className={'headerTitle'}>No.</th>
+              <th className={'headerTitle'}>title</th>
+              <th className={'headerTitle'}>Author</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookList.map((book, index) => {
+              return (
+                <tr>
+                  <td>{index + 1}</td>
+                  <td>{book.title}</td>
+                  <td>{book.author}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
