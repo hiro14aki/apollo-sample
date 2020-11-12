@@ -2,8 +2,19 @@
   margin: 20px;
 }
 
+.root > * {
+  margin-top: 10px;
+}
+
+.listTable {
+  min-width: 50vw;
+}
+
 .headerTitle {
-  padding-right: 4px;
+  padding: 4px;
   text-align: left;
 }
 
+.cell {
+  padding: 4px;
+}

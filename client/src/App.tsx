@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+import 'reset-css'
 import './App.css'
 
 type BookList = {
@@ -16,23 +17,33 @@ function App() {
   const [bookList, setBookList] = useState<BookList>([
     { title: '', author: '' },
   ])
+  const [searchText, setSearchText] = useState<string>('')
 
-  const fetchList = useCallback(() => {
+  const fetchList = useCallback((text: string = '') => {
     client
       .query({
         query: gql`
-          {
-            books {
+          query MyQuery($text: String!) {
+            books(author: $text) {
               title
               author
             }
           }
         `,
+        variables: { text },
       })
       .then((result) => {
         setBookList(result.data.books)
       })
   }, [])
+
+  const searchBook = useCallback(
+    (text: string) => {
+      fetchList(text)
+      setSearchText(text)
+    },
+    [searchText]
+  )
 
   useEffect(() => {
     fetchList()
@@ -43,23 +54,30 @@ function App() {
       <h1>Book list</h1>
       <div>
         <h2>Search</h2>
+        <div>
+          <input
+            type={'text'}
+            value={searchText}
+            onChange={(e) => searchBook(e.target.value)}
+          />
+        </div>
       </div>
       <div>
-        <table>
+        <table className={'listTable'}>
           <thead>
             <tr>
-              <th className={'headerTitle'}>No.</th>
-              <th className={'headerTitle'}>title</th>
-              <th className={'headerTitle'}>Author</th>
+              <th className={'headerTitle'} style={{width: '10%'}}>No.</th>
+              <th className={'headerTitle'} style={{width: '40%'}}>title</th>
+              <th className={'headerTitle'} style={{width: '40%'}}>Author</th>
             </tr>
           </thead>
           <tbody>
             {bookList.map((book, index) => {
               return (
-                <tr>
-                  <td>{index + 1}</td>
-                  <td>{book.title}</td>
-                  <td>{book.author}</td>
+                <tr key={index}>
+                  <td className={'cell'}>{index + 1}</td>
+                  <td className={'cell'}>{book.title}</td>
+                  <td className={'cell'}>{book.author}</td>
                 </tr>
               )
             })}

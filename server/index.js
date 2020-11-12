@@ -36,9 +36,13 @@ const books = [
 const resolvers = {
   Query: {
     books: (parent, args, context, info) => {
-      return args.author === undefined || args.author === null
+      return args.author === undefined ||
+        args.author === null ||
+        args.author === ""
         ? books
-        : books.filter((value) => value.author === args.author);
+        : books.filter((value) => {
+            return value.author.includes(args.author);
+          });
     },
   },
 };
