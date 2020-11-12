@@ -6,15 +6,19 @@
   margin-top: 10px;
 }
 
+.searchArea {
+  margin-top: 5px;
+}
+
 .listTable {
   min-width: 50vw;
 }
 
-.headerTitle {
+.title {
   padding: 4px;
   text-align: left;
 }
 
-.cell {
+.data {
   padding: 4px;
 }

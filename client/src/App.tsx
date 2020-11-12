@@ -60,8 +60,8 @@ function App() {
     <div className="root">
       <h1>Book list</h1>
       <div>
-        <h2>Search</h2>
-        <div>
+        <h2>Author search</h2>
+        <div className={'searchArea'}>
           <input
             type={'text'}
             value={searchText}
@@ -73,13 +73,13 @@ function App() {
         <table className={'listTable'}>
           <thead>
             <tr>
-              <th className={'headerTitle'} style={{ width: '10%' }}>
+              <th className={'title'} style={{ width: '10%' }}>
                 No.
               </th>
-              <th className={'headerTitle'} style={{ width: '40%' }}>
+              <th className={'title'} style={{ width: '45%' }}>
                 title
               </th>
-              <th className={'headerTitle'} style={{ width: '40%' }}>
+              <th className={'title'} style={{ width: '45%' }}>
                 Author
               </th>
             </tr>
@@ -88,9 +88,9 @@ function App() {
             {bookList.map((book, index) => {
               return (
                 <tr key={index}>
-                  <td className={'cell'}>{index + 1}</td>
-                  <td className={'cell'}>{book.title}</td>
-                  <td className={'cell'}>{book.author}</td>
+                  <td className={'data'}>{index + 1}</td>
+                  <td className={'data'}>{book.title}</td>
+                  <td className={'data'}>{book.author}</td>
                 </tr>
               )
             })}
