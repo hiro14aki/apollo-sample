@@ -13,18 +13,18 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-let timer: number
-const debounce = (func: () => void, delay: number) => {
-  clearTimeout(timer)
-  timer = window.setTimeout(func, delay)
-}
-
 function App() {
   const [bookList, setBookList] = useState<BookList>([
     { title: '', author: '' },
   ])
   const [searchText, setSearchText] = useState<string>('')
+  const intervalId = React.useRef<number>()
 
+  const debounce = (func: () => void, delay: number) => {
+    clearTimeout(intervalId.current)
+    intervalId.current = window.setTimeout(func, delay)
+  }
+  
   const fetchList = useCallback((text: string = '') => {
     client
       .query({
