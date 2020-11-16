@@ -24,37 +24,39 @@ function App() {
     clearTimeout(intervalId.current)
     intervalId.current = window.setTimeout(func, delay)
   }
-  
+
+  const FETCH_BOOK_LIST = gql`
+    query MyQuery($text: String!) {
+      books(author: $text) {
+        title
+        author
+      }
+    }
+  `
+
   const fetchList = useCallback((text: string = '') => {
     client
       .query({
-        query: gql`
-          query MyQuery($text: String!) {
-            books(author: $text) {
-              title
-              author
-            }
-          }
-        `,
+        query: FETCH_BOOK_LIST,
         variables: { text },
       })
       .then((result) => {
         setBookList(result.data.books)
       })
-  }, [])
+  }, [FETCH_BOOK_LIST])
 
   const searchBook = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setSearchText(event.target.value)
       debounce(() => fetchList(event.target.value), 500)
     },
-    [searchText]
+    [fetchList]
   )
 
   // For initial rendering.
   useEffect(() => {
     fetchList()
-  }, [])
+  }, [fetchList])
 
   return (
     <div className="root">
