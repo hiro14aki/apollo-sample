@@ -16,12 +16,13 @@ const typeDefs = gql`
   }
 
   input InputBook {
-      title: String
-      author: String
+    title: String
+    author: String
   }
-  
+
   type Mutation {
     addBook(input: InputBook): Int
+    deleteBook(title: String!): Boolean
   }
 `;
 
@@ -56,12 +57,17 @@ const resolvers = {
   },
   Mutation: {
     addBook: (parent, args, context, info) => {
-      const requestData = args.input
-      if(requestData.title !== "" && requestData.author !== ""){
-        books.push(args.input)
+      const requestData = args.input;
+      if (requestData.title !== "" && requestData.author !== "") {
+        books.push(args.input);
       }
-      console.log(books)
+      console.log(books);
       return books.length;
+    },
+    deleteBook: (parent, args, context, info) => {
+      books = books.filter((book) => args.title !== book.title);
+      console.log(books)
+      return true;
     },
   },
 };

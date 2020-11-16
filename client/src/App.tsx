@@ -28,17 +28,22 @@ function App() {
   }
 
   const FETCH_BOOK_LIST = gql`
-    query MyQuery($text: String!) {
+    query FetchBookListQuery($text: String!) {
       books(author: $text) {
         title
         author
       }
     }
   `
-
   const ADD_BOOK = gql`
-    mutation TestQuery($input: InputBook) {
+    mutation AddBookQuery($input: InputBook) {
       addBook(input: $input)
+    }
+  `
+  
+  const DELETE_BOOK = gql`
+    mutation DeleteBookQuery($title: String!){
+      deleteBook(title: $title)
     }
   `
 
@@ -84,6 +89,19 @@ function App() {
         fetchList(searchText, true)
       })
   }, [title, author, fetchList, searchText, ADD_BOOK])
+  
+  const deleteBook = useCallback((title: string) => {
+    console.log('delete !!')
+    console.log(title)
+    
+    client.mutate({
+      mutation: DELETE_BOOK,
+      variables: { title },
+      fetchPolicy: 'no-cache'
+    }).then(result => {
+      fetchList(searchText, true)
+    })
+  }, [fetchList, searchText, DELETE_BOOK])
 
   // For initial rendering.
   useEffect(() => {
@@ -139,15 +157,19 @@ function App() {
         <table className={'listTable'}>
           <thead>
             <tr>
-              <th className={'title'} style={{ width: '10%' }}>
+              <th className={'title'} style={{ width: '5%' }}>
                 No.
               </th>
-              <th className={'title'} style={{ width: '45%' }}>
+              <th className={'title'} style={{ width: '40%' }}>
                 title
               </th>
-              <th className={'title'} style={{ width: '45%' }}>
+              <th className={'title'} style={{ width: '35%' }}>
                 Author
               </th>
+              <th className={'title'} style={{ width: '10%' }}>
+                Action
+              </th>
+              <th className={'title'} style={{ width: '10%' }} />
             </tr>
           </thead>
           <tbody>
@@ -157,6 +179,12 @@ function App() {
                   <td className={'data'}>{index + 1}</td>
                   <td className={'data'}>{book.title}</td>
                   <td className={'data'}>{book.author}</td>
+                  <td>
+                    <input type={'button'} value={'Modify'} onClick={() => {}} />
+                  </td>
+                  <td>
+                    <input type={'button'} value={'Delete'} onClick={() => deleteBook(book.title)}/>
+                  </td>
                 </tr>
               )
             })}
