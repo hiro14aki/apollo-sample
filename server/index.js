@@ -1,9 +1,11 @@
 const { ApolloServer, gql } = require("apollo-server");
+const { v4: uuidv4 } = require("uuid");
 
 const typeDefs = gql`
   # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
   # This "Book" type defines the queryable fields for every book in our data source.
   type Book {
+    id: String
     title: String
     author: String
   }
@@ -22,20 +24,23 @@ const typeDefs = gql`
 
   type Mutation {
     addBook(input: InputBook): Int
-    deleteBook(title: String!): Boolean
+    deleteBook(id: String!): Boolean
   }
 `;
 
 let books = [
   {
+    id: "4371b53e-e8e0-489e-9d92-fc243bc9dc48",
     title: "The Awakening",
     author: "Kate Chopin",
   },
   {
+    id: "f267b324-6dc5-4b01-8d33-7e6dbcd60710",
     title: "City of Glass",
     author: "Paul Auster",
   },
   {
+    id: "eb9e1b15-37cb-4f6e-a3de-e3ffbe3a499e",
     title: "Apollo server example.",
     author: "Hiroaki Imai",
   },
@@ -59,14 +64,14 @@ const resolvers = {
     addBook: (parent, args, context, info) => {
       const requestData = args.input;
       if (requestData.title !== "" && requestData.author !== "") {
-        books.push(args.input);
+        const id = uuidv4();
+        books.push({ ...requestData, id });
       }
-      console.log(books);
       return books.length;
     },
+
     deleteBook: (parent, args, context, info) => {
-      books = books.filter((book) => args.title !== book.title);
-      console.log(books)
+      books = books.filter((book) => args.id !== book.id);
       return true;
     },
   },

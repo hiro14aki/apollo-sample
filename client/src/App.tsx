@@ -4,6 +4,7 @@ import 'reset-css'
 import './App.css'
 
 type BookList = {
+  id: string
   title: string
   author: string
 }[]
@@ -15,7 +16,7 @@ const client = new ApolloClient({
 
 function App() {
   const [bookList, setBookList] = useState<BookList>([
-    { title: '', author: '' },
+    { id: '', title: '', author: '' },
   ])
   const [searchText, setSearchText] = useState<string>('')
   const [title, setTitle] = useState<string>('')
@@ -30,6 +31,7 @@ function App() {
   const FETCH_BOOK_LIST = gql`
     query FetchBookListQuery($text: String!) {
       books(author: $text) {
+        id
         title
         author
       }
@@ -40,10 +42,10 @@ function App() {
       addBook(input: $input)
     }
   `
-  
+
   const DELETE_BOOK = gql`
-    mutation DeleteBookQuery($title: String!){
-      deleteBook(title: $title)
+    mutation DeleteBookQuery($id: String!) {
+      deleteBook(id: $id)
     }
   `
 
@@ -89,19 +91,23 @@ function App() {
         fetchList(searchText, true)
       })
   }, [title, author, fetchList, searchText, ADD_BOOK])
-  
-  const deleteBook = useCallback((title: string) => {
-    console.log('delete !!')
-    console.log(title)
-    
-    client.mutate({
-      mutation: DELETE_BOOK,
-      variables: { title },
-      fetchPolicy: 'no-cache'
-    }).then(result => {
-      fetchList(searchText, true)
-    })
-  }, [fetchList, searchText, DELETE_BOOK])
+
+  const deleteBook = useCallback(
+    (id: string) => {
+      console.log('delete !!')
+
+      client
+        .mutate({
+          mutation: DELETE_BOOK,
+          variables: { id },
+          fetchPolicy: 'no-cache',
+        })
+        .then((result) => {
+          fetchList(searchText, true)
+        })
+    },
+    [fetchList, searchText, DELETE_BOOK]
+  )
 
   // For initial rendering.
   useEffect(() => {
@@ -180,10 +186,18 @@ function App() {
                   <td className={'data'}>{book.title}</td>
                   <td className={'data'}>{book.author}</td>
                   <td>
-                    <input type={'button'} value={'Modify'} onClick={() => {}} />
+                    <input
+                      type={'button'}
+                      value={'Modify'}
+                      onClick={() => {}}
+                    />
                   </td>
                   <td>
-                    <input type={'button'} value={'Delete'} onClick={() => deleteBook(book.title)}/>
+                    <input
+                      type={'button'}
+                      value={'Delete'}
+                      onClick={() => deleteBook(book.id)}
+                    />
                   </td>
                 </tr>
               )
