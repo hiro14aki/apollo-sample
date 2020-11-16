@@ -14,9 +14,18 @@ const typeDefs = gql`
   type Query {
     books(author: String): [Book]
   }
+
+  input InputBook {
+      title: String
+      author: String
+  }
+  
+  type Mutation {
+    addBook(input: InputBook): Int
+  }
 `;
 
-const books = [
+let books = [
   {
     title: "The Awakening",
     author: "Kate Chopin",
@@ -43,6 +52,16 @@ const resolvers = {
         : books.filter((value) => {
             return value.author.includes(args.author);
           });
+    },
+  },
+  Mutation: {
+    addBook: (parent, args, context, info) => {
+      const requestData = args.input
+      if(requestData.title !== "" && requestData.author !== ""){
+        books.push(args.input)
+      }
+      console.log(books)
+      return books.length;
     },
   },
 };

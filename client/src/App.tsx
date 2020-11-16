@@ -18,6 +18,8 @@ function App() {
     { title: '', author: '' },
   ])
   const [searchText, setSearchText] = useState<string>('')
+  const [title, setTitle] = useState<string>('')
+  const [author, setAuthor] = useState<string>('')
   const intervalId = React.useRef<number>()
 
   const debounce = (func: () => void, delay: number) => {
@@ -34,16 +36,34 @@ function App() {
     }
   `
 
-  const fetchList = useCallback((text: string = '') => {
-    client
-      .query({
+  const ADD_BOOK = gql`
+    mutation TestQuery($input: InputBook) {
+      addBook(input: $input)
+    }
+  `
+
+  const fetchList = useCallback(
+    // TODO 本来なら更新後のリスト更新だけ no-cache にしたい
+    (text: string = '', forceRefresh: boolean = true) => {
+      const requestQuery = {
         query: FETCH_BOOK_LIST,
         variables: { text },
-      })
-      .then((result) => {
-        setBookList(result.data.books)
-      })
-  }, [FETCH_BOOK_LIST])
+      }
+      client
+        .query(
+          forceRefresh
+            ? {
+                ...requestQuery,
+                fetchPolicy: 'no-cache',
+              }
+            : requestQuery
+        )
+        .then((result) => {
+          setBookList(result.data.books)
+        })
+    },
+    [FETCH_BOOK_LIST]
+  )
 
   const searchBook = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +73,18 @@ function App() {
     [fetchList]
   )
 
+  const addBook = useCallback(() => {
+    client
+      .mutate({
+        mutation: ADD_BOOK,
+        variables: { input: { title, author } },
+        fetchPolicy: 'no-cache',
+      })
+      .then((r) => {
+        fetchList(searchText, true)
+      })
+  }, [title, author, fetchList, searchText, ADD_BOOK])
+
   // For initial rendering.
   useEffect(() => {
     fetchList()
@@ -61,6 +93,38 @@ function App() {
   return (
     <div className="root">
       <h1>Book list</h1>
+      <div className={'input'}>
+        <h2>Add book</h2>
+        <div className={'inputArea'}>
+          <div className={'inputField'}>
+            <p className={'inputField__Title'}>Title</p>
+            <input
+              type={'text'}
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value)
+              }}
+            />
+          </div>
+          <div className={'inputField'}>
+            <p className={'inputField__Title'}>Author</p>
+            <input
+              type={'text'}
+              value={author}
+              onChange={(e) => {
+                setAuthor(e.target.value)
+              }}
+            />
+          </div>
+        </div>
+        <input
+          type={'button'}
+          value={'AddBook'}
+          onClick={() => {
+            addBook()
+          }}
+        />
+      </div>
       <div>
         <h2>Author search</h2>
         <div className={'searchArea'}>
