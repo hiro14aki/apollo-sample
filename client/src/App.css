@@ -39,7 +39,10 @@ h2 {
 }
 
 .listTable {
-  min-width: 50vw;
+  width: 980px;
+  box-sizing: border-box;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
 .title {
@@ -48,5 +51,22 @@ h2 {
 }
 
 .data {
-  padding: 4px;
+  padding: 10px 0;
+  height: 20px;
+  vertical-align: middle;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  height: 20px;
+}
+
+.action > * {
+  margin-left: 5px;
+}
+
+.action > *:first-of-type {
+  margin-left: 0;
 }

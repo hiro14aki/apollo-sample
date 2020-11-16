@@ -228,19 +228,18 @@ function App() {
         <table className={'listTable'}>
           <thead>
             <tr>
-              <th className={'title'} style={{ width: '5%' }}>
+              <th className={'title'} style={{width: '40px'}}>
                 No.
               </th>
-              <th className={'title'} style={{ width: '40%' }}>
+              <th className={'title'} style={{ width: '30%' }}>
                 title
               </th>
-              <th className={'title'} style={{ width: '35%' }}>
+              <th className={'title'} style={{ width: '30%' }}>
                 Author
               </th>
-              <th className={'title'} style={{ width: '10%' }}>
+              <th className={'title'} style={{ width: '30%' }}>
                 Action
               </th>
-              <th className={'title'} style={{ width: '10%' }} />
             </tr>
           </thead>
           <tbody>
@@ -276,7 +275,7 @@ function App() {
                       book.author
                     )}
                   </td>
-                  <td>
+                  <td className={'action'}>
                     <input
                       type={'button'}
                       value={isModifyTarget ? 'Cancel' : 'Modify'}
@@ -296,8 +295,6 @@ function App() {
                         onClick={() => updateBook(book.id)}
                       />
                     ) : null}
-                  </td>
-                  <td>
                     <input
                       type={'button'}
                       value={'Delete'}
