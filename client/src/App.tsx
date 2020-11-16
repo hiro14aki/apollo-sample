@@ -21,6 +21,12 @@ function App() {
   const [searchText, setSearchText] = useState<string>('')
   const [title, setTitle] = useState<string>('')
   const [author, setAuthor] = useState<string>('')
+  const [modifyBookInfo, setModifyBookInfo] = useState<{
+    modify: boolean
+    id: string
+    title: string
+    author: string
+  }>({ modify: false, id: '', title: '', author: '' })
   const intervalId = React.useRef<number>()
 
   const debounce = (func: () => void, delay: number) => {
@@ -46,6 +52,12 @@ function App() {
   const DELETE_BOOK = gql`
     mutation DeleteBookQuery($id: String!) {
       deleteBook(id: $id)
+    }
+  `
+
+  const UPDATE_BOOK = gql`
+    mutation UpdateBookQuery($input: UpdateBookTarget) {
+      updateBook(input: $input)
     }
   `
 
@@ -94,7 +106,6 @@ function App() {
 
   const deleteBook = useCallback(
     (id: string) => {
-      console.log('delete !!')
 
       client
         .mutate({
@@ -107,6 +118,60 @@ function App() {
         })
     },
     [fetchList, searchText, DELETE_BOOK]
+  )
+
+  const switchModifyMode = useCallback(
+    (modifyTarget: {
+      modify: boolean
+      id: string
+      title: string
+      author: string
+    }) => {
+      setModifyBookInfo(modifyTarget)
+    },
+    []
+  )
+  const updateModifyBook = useCallback((target: string, value: string) => {
+    setModifyBookInfo(
+      (prevState: {
+        modify: boolean
+        id: string
+        title: string
+        author: string
+      }) => ({
+        ...prevState,
+        [target]: value,
+      })
+    )
+  }, [])
+
+  const updateBook = useCallback(
+    (id: string) => {
+      client
+        .mutate({
+          mutation: UPDATE_BOOK,
+          variables: {
+            input: {
+              id: modifyBookInfo.id,
+              title: modifyBookInfo.title,
+              author: modifyBookInfo.author,
+            },
+          },
+          fetchPolicy: 'no-cache',
+        })
+        .then((result) => {
+          // TODO: 表示をシームレスにするなら更新の戻りをリストにする or 画面のリストも合わせて更新する
+          fetchList()
+          setModifyBookInfo({ modify: false, title: '', author: '', id: '' })
+        })
+    },
+    [
+      modifyBookInfo.id,
+      modifyBookInfo.title,
+      modifyBookInfo.author,
+      UPDATE_BOOK,
+      fetchList,
+    ]
   )
 
   // For initial rendering.
@@ -180,17 +245,57 @@ function App() {
           </thead>
           <tbody>
             {bookList.map((book, index) => {
+              const isModifyTarget =
+                modifyBookInfo.modify && book.id === modifyBookInfo.id
               return (
                 <tr key={index}>
                   <td className={'data'}>{index + 1}</td>
-                  <td className={'data'}>{book.title}</td>
-                  <td className={'data'}>{book.author}</td>
+                  <td className={'data'}>
+                    {isModifyTarget ? (
+                      <input
+                        type={'text'}
+                        value={modifyBookInfo.title}
+                        onChange={(e) =>
+                          updateModifyBook('title', e.target.value)
+                        }
+                      />
+                    ) : (
+                      book.title
+                    )}
+                  </td>
+                  <td className={'data'}>
+                    {isModifyTarget ? (
+                      <input
+                        type={'text'}
+                        value={modifyBookInfo.author}
+                        onChange={(e) =>
+                          updateModifyBook('author', e.target.value)
+                        }
+                      />
+                    ) : (
+                      book.author
+                    )}
+                  </td>
                   <td>
                     <input
                       type={'button'}
-                      value={'Modify'}
-                      onClick={() => {}}
+                      value={isModifyTarget ? 'Cancel' : 'Modify'}
+                      onClick={() =>
+                        switchModifyMode({
+                          modify: !modifyBookInfo.modify,
+                          id: book.id,
+                          title: book.title,
+                          author: book.author,
+                        })
+                      }
                     />
+                    {isModifyTarget ? (
+                      <input
+                        type={'button'}
+                        value={'Submit'}
+                        onClick={() => updateBook(book.id)}
+                      />
+                    ) : null}
                   </td>
                   <td>
                     <input

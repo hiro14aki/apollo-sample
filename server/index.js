@@ -21,10 +21,16 @@ const typeDefs = gql`
     title: String
     author: String
   }
+  input UpdateBookTarget {
+    id: String
+    title: String
+    author: String
+  }
 
   type Mutation {
     addBook(input: InputBook): Int
     deleteBook(id: String!): Boolean
+    updateBook(input: UpdateBookTarget): Boolean
   }
 `;
 
@@ -72,6 +78,16 @@ const resolvers = {
 
     deleteBook: (parent, args, context, info) => {
       books = books.filter((book) => args.id !== book.id);
+      return true;
+    },
+
+    updateBook: (parent, args, context, info) => {
+      const requestData = args.input;
+      books = books.map((value, index) =>
+        requestData.id === value.id
+          ? { ...value, title: requestData.title, author: requestData.author }
+          : value
+      );
       return true;
     },
   },
