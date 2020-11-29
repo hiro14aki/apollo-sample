@@ -1,5 +1,7 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+import { ApolloClient, InMemoryCache } from '@apollo/client'
+import { FETCH_BOOK_LIST } from './data/QueryData'
+import { ADD_BOOK, DELETE_BOOK, UPDATE_BOOK } from './data/MutateData'
 import 'reset-css'
 import './App.css'
 
@@ -34,34 +36,7 @@ function App() {
     intervalId.current = window.setTimeout(func, delay)
   }
 
-  const FETCH_BOOK_LIST = gql`
-    query FetchBookListQuery($text: String!) {
-      books(author: $text) {
-        id
-        title
-        author
-      }
-    }
-  `
-  const ADD_BOOK = gql`
-    mutation AddBookQuery($input: InputBook) {
-      addBook(input: $input)
-    }
-  `
-
-  const DELETE_BOOK = gql`
-    mutation DeleteBookQuery($id: String!) {
-      deleteBook(id: $id)
-    }
-  `
-
-  const UPDATE_BOOK = gql`
-    mutation UpdateBookQuery($input: UpdateBookTarget) {
-      updateBook(input: $input)
-    }
-  `
-
-  const fetchList = useCallback(
+  const fetchList =
     // TODO 本来なら更新後のリスト更新だけ no-cache にしたい
     (text: string = '', forceRefresh: boolean = true) => {
       const requestQuery = {
@@ -80,17 +55,12 @@ function App() {
         .then((result) => {
           setBookList(result.data.books)
         })
-    },
-    [FETCH_BOOK_LIST]
-  )
+    }
 
-  const searchBook = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setSearchText(event.target.value)
-      debounce(() => fetchList(event.target.value), 500)
-    },
-    [fetchList]
-  )
+  const searchBook = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchText(event.target.value)
+    debounce(() => fetchList(event.target.value), 500)
+  }
 
   const addBook = useCallback(() => {
     client
@@ -102,11 +72,10 @@ function App() {
       .then((r) => {
         fetchList(searchText, true)
       })
-  }, [title, author, fetchList, searchText, ADD_BOOK])
+  }, [title, author, searchText])
 
   const deleteBook = useCallback(
     (id: string) => {
-
       client
         .mutate({
           mutation: DELETE_BOOK,
@@ -117,7 +86,7 @@ function App() {
           fetchList(searchText, true)
         })
     },
-    [fetchList, searchText, DELETE_BOOK]
+    [searchText]
   )
 
   const switchModifyMode = useCallback(
@@ -165,19 +134,13 @@ function App() {
           setModifyBookInfo({ modify: false, title: '', author: '', id: '' })
         })
     },
-    [
-      modifyBookInfo.id,
-      modifyBookInfo.title,
-      modifyBookInfo.author,
-      UPDATE_BOOK,
-      fetchList,
-    ]
+    [modifyBookInfo.id, modifyBookInfo.title, modifyBookInfo.author]
   )
 
   // For initial rendering.
   useEffect(() => {
     fetchList()
-  }, [fetchList])
+  }, [])
 
   return (
     <div className="root">
@@ -228,7 +191,7 @@ function App() {
         <table className={'listTable'}>
           <thead>
             <tr>
-              <th className={'title'} style={{width: '40px'}}>
+              <th className={'title'} style={{ width: '40px' }}>
                 No.
               </th>
               <th className={'title'} style={{ width: '30%' }}>

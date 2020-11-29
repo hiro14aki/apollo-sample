@@ -21,6 +21,7 @@ const typeDefs = gql`
     title: String
     author: String
   }
+
   input UpdateBookTarget {
     id: String
     title: String
@@ -66,6 +67,7 @@ const resolvers = {
           });
     },
   },
+
   Mutation: {
     addBook: (parent, args, context, info) => {
       const requestData = args.input;
