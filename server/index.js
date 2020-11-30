@@ -33,7 +33,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    addBook(input: InputBook): Result
+    addBook(input: InputBook): Book 
     deleteBook(id: String!): Result
     updateBook(input: UpdateBookTarget): Result
   }
@@ -75,11 +75,11 @@ const resolvers = {
   Mutation: {
     addBook: (parent, args, context, info) => {
       const requestData = args.input;
+      const id = uuidv4();
       if (requestData.title !== "" && requestData.author !== "") {
-        const id = uuidv4();
         books.push({ ...requestData, id });
       }
-      return { result: true };
+      return { ...requestData, id };
     },
 
     deleteBook: (parent, args, context, info) => {

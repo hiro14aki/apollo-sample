@@ -36,26 +36,28 @@ function App() {
     intervalId.current = window.setTimeout(func, delay)
   }
 
-  const fetchList =
-    // TODO 本来なら更新後のリスト更新だけ no-cache にしたい
-    (text: string = '', forceRefresh: boolean = true) => {
-      const requestQuery = {
-        query: FETCH_BOOK_LIST,
-        variables: { text },
-      }
-      client
-        .query(
-          forceRefresh
-            ? {
-                ...requestQuery,
-                fetchPolicy: 'no-cache',
-              }
-            : requestQuery
-        )
-        .then((result) => {
-          setBookList(result.data.books)
-        })
+  const fetchList = (text: string = '', forceRefresh: boolean = false) => {
+    const requestQuery = {
+      query: FETCH_BOOK_LIST,
+      variables: { text },
     }
+    client
+      .query(
+        forceRefresh
+          ? {
+              ...requestQuery,
+              fetchPolicy: 'no-cache',
+            }
+          : requestQuery
+      )
+      .then((result) => {
+        if (result.errors) {
+          console.log('Failed to fetch data.')
+        } else {
+          setBookList(result.data.books)
+        }
+      })
+  }
 
   const searchBook = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value)
@@ -67,13 +69,12 @@ function App() {
       .mutate({
         mutation: ADD_BOOK,
         variables: { input: { title, author } },
-        fetchPolicy: 'no-cache',
       })
       .then((result) => {
-        if (result.data.addBook.result) {
-          fetchList(searchText, true)
-        } else {
+        if (result.errors) {
           console.log('Failed to add data.')
+        } else {
+          fetchList(searchText, true)
         }
       })
   }, [title, author, searchText])
@@ -84,13 +85,12 @@ function App() {
         .mutate({
           mutation: DELETE_BOOK,
           variables: { id },
-          fetchPolicy: 'no-cache',
         })
         .then((result) => {
-          if (result.data.deleteBook.result) {
-            fetchList(searchText, true)
-          } else {
+          if (result.errors) {
             console.log('Failed to delete data.')
+          } else {
+            fetchList(searchText, true)
           }
         })
     },
@@ -134,17 +134,16 @@ function App() {
               author: modifyBookInfo.author,
             },
           },
-          fetchPolicy: 'no-cache',
         })
         .then((result) => {
-          if (!result.data.updateBook.result)
+          if (result.errors) {
             console.log('Failed to update data.')
-          // TODO: 表示をシームレスにするなら更新の戻りをリストにする or 画面のリストも合わせて更新する
-          fetchList()
+          }
+          fetchList(searchText, true)
           setModifyBookInfo({ modify: false, title: '', author: '', id: '' })
         })
     },
-    [modifyBookInfo.id, modifyBookInfo.title, modifyBookInfo.author]
+    [modifyBookInfo.id, modifyBookInfo.title, modifyBookInfo.author, searchText]
   )
 
   // For initial rendering.

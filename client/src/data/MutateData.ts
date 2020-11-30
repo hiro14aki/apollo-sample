@@ -3,7 +3,9 @@ import { gql } from '@apollo/client'
 export const ADD_BOOK = gql`
   mutation AddBookQuery($input: InputBook) {
     addBook(input: $input) {
-      result
+      id
+      title
+      author
     }
   }
 `
