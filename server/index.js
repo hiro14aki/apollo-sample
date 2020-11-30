@@ -28,10 +28,14 @@ const typeDefs = gql`
     author: String
   }
 
+  type Result {
+    result: Boolean
+  }
+
   type Mutation {
-    addBook(input: InputBook): Int
-    deleteBook(id: String!): Boolean
-    updateBook(input: UpdateBookTarget): Boolean
+    addBook(input: InputBook): Result
+    deleteBook(id: String!): Result
+    updateBook(input: UpdateBookTarget): Result
   }
 `;
 
@@ -75,12 +79,12 @@ const resolvers = {
         const id = uuidv4();
         books.push({ ...requestData, id });
       }
-      return books.length;
+      return { result: true };
     },
 
     deleteBook: (parent, args, context, info) => {
       books = books.filter((book) => args.id !== book.id);
-      return true;
+      return { result: true };
     },
 
     updateBook: (parent, args, context, info) => {
@@ -90,7 +94,7 @@ const resolvers = {
           ? { ...value, title: requestData.title, author: requestData.author }
           : value
       );
-      return true;
+      return { result: true };
     },
   },
 };

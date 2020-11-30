@@ -2,18 +2,24 @@ import { gql } from '@apollo/client'
 
 export const ADD_BOOK = gql`
   mutation AddBookQuery($input: InputBook) {
-    addBook(input: $input)
+    addBook(input: $input) {
+      result
+    }
   }
 `
 
 export const DELETE_BOOK = gql`
   mutation DeleteBookQuery($id: String!) {
-    deleteBook(id: $id)
+    deleteBook(id: $id) {
+      result
+    }
   }
 `
 
 export const UPDATE_BOOK = gql`
   mutation UpdateBookQuery($input: UpdateBookTarget) {
-    updateBook(input: $input)
+    updateBook(input: $input) {
+      result
+    }
   }
 `

@@ -69,8 +69,12 @@ function App() {
         variables: { input: { title, author } },
         fetchPolicy: 'no-cache',
       })
-      .then((r) => {
-        fetchList(searchText, true)
+      .then((result) => {
+        if (result.data.addBook.result) {
+          fetchList(searchText, true)
+        } else {
+          console.log('Failed to add data.')
+        }
       })
   }, [title, author, searchText])
 
@@ -83,7 +87,11 @@ function App() {
           fetchPolicy: 'no-cache',
         })
         .then((result) => {
-          fetchList(searchText, true)
+          if (result.data.deleteBook.result) {
+            fetchList(searchText, true)
+          } else {
+            console.log('Failed to delete data.')
+          }
         })
     },
     [searchText]
@@ -129,6 +137,8 @@ function App() {
           fetchPolicy: 'no-cache',
         })
         .then((result) => {
+          if (!result.data.updateBook.result)
+            console.log('Failed to update data.')
           // TODO: 表示をシームレスにするなら更新の戻りをリストにする or 画面のリストも合わせて更新する
           fetchList()
           setModifyBookInfo({ modify: false, title: '', author: '', id: '' })
